@@ -4,11 +4,14 @@ const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("config");
+const auth = require("../../middleware/auth");
 
 const User = require("../../models/User");
+const Profile = require("../../models/Profile");
+
 // @route   POST api/users
 // @desc    Register user
-// @acess   Public
+// @access   Public
 router.post(
   "/",
   [
@@ -23,7 +26,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     try {
       let user = await User.findOne({ email });
@@ -35,6 +38,7 @@ router.post(
         name,
         email,
         password,
+        role: role || "basic",
       });
 
       const salt = await bcrypt.genSalt(10);
@@ -67,4 +71,20 @@ router.post(
   }
 );
 
+// @route   DELETE api/users/me
+// @desc    Delete user, profile & posts
+// @access   Private
+router.delete("/me", auth.isLoggedIn, async (req, res) => {
+  try {
+    // TODO - remove users posts
+    // Remove profile
+    await Profile.findOneAndRemove({ user: req.user.id });
+    // Remove user
+    await User.findOneAndRemove({ _id: req.user.id });
+    res.json({ msg: "User deleted" });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
 module.exports = router;

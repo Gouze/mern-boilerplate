@@ -9,8 +9,8 @@ const User = require("../../models/User");
 
 // @route   GET api/auth
 // @desc    Test route
-// @acess   Private
-router.get("/", auth, async (req, res) => {
+// @access   Private
+router.get("/", auth.isLoggedIn, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     res.json({ user });
@@ -22,7 +22,7 @@ router.get("/", auth, async (req, res) => {
 
 // @route   POST api/auth
 // @desc    Authenticate user & get tken
-// @acess   Public
+// @access   Public
 
 router.post(
   "/",

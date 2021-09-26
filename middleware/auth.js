@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const config = require("config");
 
-module.exports = function (req, res, next) {
+exports.isLoggedIn = function (req, res, next) {
   // Get token from header
   const token = req.header("x-auth-token");
 
@@ -18,4 +18,20 @@ module.exports = function (req, res, next) {
   } catch (err) {
     res.status(401).json({ msg: "Token is not valid" });
   }
+};
+
+exports.accessTo = function (action, resource) {
+  return async (req, res, next) => {
+    try {
+      const permission = roles.can(req.user.role)[action](resource);
+      if (!permission.granted) {
+        return res.status(401).json({
+          error: "You don't have enough permission to perform this action",
+        });
+      }
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
 };
