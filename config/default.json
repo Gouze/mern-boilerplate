@@ -1,0 +1,4 @@
+{
+    "mongoURI": "mongodb+srv://gouze:lv2UiAPGkw3b0l6A@cluster0.o5qzv.mongodb.net/mern-boilerplate?retryWrites=true&w=majority",
+    "jwtSecret":"secretkey"
+}
